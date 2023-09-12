@@ -4,12 +4,8 @@ title: About
 permalink: /about/
 ---
 
-Some information about you!
-
-### More Information
-
-A place to include any other types of information that you'd like to include about yourself.
+M.Sc. in Data Engineering and Analytics at Technical University of Munich. Actively researching ML/DL applications in multiple domains
 
 ### Contact me
 
-[email@domain.com](mailto:email@domain.com)
+[avagyanee@gmail.com](avagyanee@gmail.com)
