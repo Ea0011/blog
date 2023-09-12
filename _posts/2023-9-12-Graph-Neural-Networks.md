@@ -3,8 +3,6 @@ layout: page
 title: Graph Neural Networks
 ---
 
-# Overview
-
 Many real-world applications require processing and understanding of graph-structured data. For instance, one may want to process World Wide Web data, social networks, citation networks, scene graphs, human bodies, and many more. What unites these kinds of data is the availability of neighbourhood information amongst entities. This information can serve as a very strong end informative inductive bias. Thus, it is worthwhile exploring neural architectures that can embed this information in the processing. This is where **Graph Neural Networks** play their part in the abundance of neural architectures.  
 
 In this blog, we will discuss the basics of graph neural networks, their variations, and some notable extensions that can be useful in certain applications.
