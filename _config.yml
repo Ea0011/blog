@@ -69,6 +69,10 @@ kramdown:
     css_class: 'highlight'
   math_engine: mathjax
 
+mathjax:
+  inlineMath:
+    - ["$", "$"]
+
 # Set the Sass partials directory, as we're using @imports
 sass:
   style: :expanded # You might prefer to minify using :compressed
