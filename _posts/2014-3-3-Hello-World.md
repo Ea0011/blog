@@ -28,19 +28,21 @@ Spectral-based GNNs differ in the design choice of the learnable filter $\boldsy
 
 **Spatial-Based GNNs**: The difference between Spectral-Based GNNs and Spatial-Based GNNs is that message-passing in the vertex space as opposed to the spectral space. So, a typical Spatial-Based GNN can be formulated as follows
 
-$$ \boldsymbol{h}_v^{(k)} = U_k \left( \boldsymbol{h}_v^{(k - 1)}, \sum_{u \in N(v)} M_k(\boldsymbol{h}_v^{(k - 1)}, \boldsymbol{h}_u^{(k - 1)}, e_{vu}) \right) $$
+$$
+\boldsymbol{h}_v^{(k)} = U_k \left( \boldsymbol{h}_v^{(k - 1)}, \sum _{u \in N(v)} M_k(\boldsymbol{h}_v^{(k - 1)}, \boldsymbol{h}_u^{(k - 1)}, e _{vu}) \right)
+$$
 
-Here where $\boldsymbol{h}_v^{(0)} = \boldsymbol{x}_v$ and $U_k$ and $M_k$ are neural networks with learnable parameters, such as Multilayer Perceptrons (MLP). $\boldsymbol{e_{vu}}$ denotes the (optional) edge features connecting nodes $v$ and $u$. The equation, in essence, updates the features of nodes using the feature from previous layer: $\boldsymbol{h}_v^{(k - 1)}$ and the aggregated neighbour messages from all neighbours: $\sum_{u \in N(v)} M_k(\boldsymbol{h}_v^{(k - 1)}, \boldsymbol{h}_u^{(k - 1)}, e_{vu})$. This operation optionally takes into account edge features, if there are any.
+Here where $\boldsymbol{h}_v^{(0)} = \boldsymbol{x}_v$ and $U _k$ and $M _k$ are neural networks with learnable parameters, such as Multilayer Perceptrons (MLP). $\boldsymbol{e _{vu}}$ denotes the (optional) edge features connecting nodes $v$ and $u$. The equation, in essence, updates the features of nodes using the feature from previous layer: $\boldsymbol{h}_v^{(k - 1)}$ and the aggregated neighbour messages from all neighbours: $\sum _{u \in N(v)} M_k(\boldsymbol{h}_v^{(k - 1)}, \boldsymbol{h}_u^{(k - 1)}, e _{vu})$. This operation optionally takes into account edge features, if there are any.
 
 **Graph-Convolutional Neural Networks (GCN)**: GCN by *Kipf et al.* is a kind of middle ground between spectral and spatial-based GNNs. It can be interpreted through both lenses. GCN forward pass is computed as follows:
 
 $$ \boldsymbol{H} = \sigma(\hat{\boldsymbol{A}}\boldsymbol{X}\boldsymbol{W}) $$
 
-where $\boldsymbol{H} \in R^{n \times h}$ is the hidden state of nodes in a graph after a forward pass, $\boldsymbol{X} \in R^{N \times \textrm{D}}$ is the input graph signal where each of $n$ nodes has $D$ dimensional features and $\boldsymbol{W} \in R^{\textrm{D} \times H}$ is the learnable weight matrix. The result is passed through a non linearity $\sigma$, which can be arbitrarily chosen. A common choice is the $ReLU$ function. Stacking several such layers on top of each other makes the network process broader neighbourhood information. The matrix $\hat{\boldsymbol{A}}$ can be initialized as either the degree or symmetrically normalized adjacency matrix which also includes self-links. 
+where $\boldsymbol{H} \in R^{N \times H}$ is the hidden state of nodes in a graph after a forward pass, $\boldsymbol{X} \in R^{N \times \textrm{D}}$ is the input graph signal where each of $n$ nodes has $D$ dimensional features and $\boldsymbol{W} \in R^{\textrm{D} \times H}$ is the learnable weight matrix. The result is passed through a non linearity $\sigma$, which can be arbitrarily chosen. A common choice is the $ReLU$ function. Stacking several such layers on top of each other makes the network process broader neighbourhood information. The matrix $\hat{\boldsymbol{A}}$ can be initialized as either the degree or symmetrically normalized adjacency matrix which also includes self-links. 
 
 To see why this definition can be viewed as a spatial-based method, it can be rewritten as follows:
 
-$$ \boldsymbol{h}_v = \sigma \left ( \sum_{u \in \{N(v) \cup v \} } \boldsymbol{\hat{A}}_{v,u} \boldsymbol{W}^{\textrm{T}} \boldsymbol{x}_u \right) $$
+$$ \boldsymbol{h}_v = \sigma \left ( \sum _{u \in \{N(v) \cup v \} } \boldsymbol{\hat{A}} _{v,u} \boldsymbol{W}^{\textrm{T}} \boldsymbol{x}_u \right) $$
 
 Now, we can interpret GCN as a network that weights and aggregates neighbourhood features, akin to more general spatial-based GNNs.
 
@@ -51,7 +53,7 @@ There are several modifications one can perform on top of standard GNNs that can
 
 One can achieve weight unsharing by modifying the vanilla GCN equation to be:
 
-$$ \boldsymbol{h}_v = \sigma \left ( \sum_{u \in \{N(v) \cup v \} } \boldsymbol{\hat{A}}_{v,u} \boldsymbol{W}^{\textrm{T}}_{g(v, u)} \boldsymbol{x}_u \right) $$
+$$ \boldsymbol{h}_v = \sigma \left ( \sum _{u \in \{N(v) \cup v \} } \boldsymbol{\hat{A}} _{v,u} \boldsymbol{W}^{\textrm{T}} _{g(v, u)} \boldsymbol{x}_u \right) $$
 
 Where $g(v, u)$ corresponds to the group where nodes $v$ and $u$ belong. So, $\boldsymbol{W}_{g(v, u)}$ is the feature transformation specific to the group $g(v, u)$. So, nodes are partitioned into several groups, and each group has its own weight matrix. Admittedly, the capacity of feature extraction of the network grows. However, one should think about this partitioning and how it can be done in regard to the use case at hand.
 
