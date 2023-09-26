@@ -1,4 +1,4 @@
- ---
+---
 layout: page
 title: Generative Adversarial Networks, GANs
 ---
