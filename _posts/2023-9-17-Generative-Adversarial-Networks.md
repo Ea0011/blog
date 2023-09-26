@@ -10,7 +10,7 @@ I became aware of the astonishing results that GANs achieved during a conference
 
 # Introduction: Principles of GANs
 
-Let's start with the goal of Generative AI. The goal of generative AI is to achieve knowledge about the distribution of a given dataset $D = \left( x_1, x_2, \dots, x_n \right)$. This data can be images, tabular data, audio, graphs, you name it. One way of doing this is adopting some assumptions and using parametric models to model the density $p_x$. For instance, autoregressive models decompose the joint distribution of the data point into a product of marginal distributions $p \left( x \right) = \prod_{i} p(x_i | x_{< i})$. One example of such kind of model is the Transformer used to generate the next word in a sequence conditioned on previous words. Alternatively, one might use a parametric neural model to maximize a variational lower bound on the data density, like the VAE. One might use a series of invertible transformations parametrized using neural networks to transform simple random variables to points from the data distribution (or compute the density of those points). These are the normalizing flows, which build upon the random variable transformation formula.  
+Let's start with the goal of Generative AI. The goal of generative AI is to achieve knowledge about the distribution of a given dataset $D = \left( x_1, x_2, \dots, x_n \right)$. This data can be images, tabular data, audio, graphs, you name it. One way of doing this is adopting some assumptions and using parametric models to model the density $p_x$. For instance, autoregressive models decompose the joint distribution of the data point into a product of marginal distributions $p \left( x \right) = \prod_{i} p(x_i \mid x_{< i})$. One example of such kind of model is the Transformer used to generate the next word in a sequence conditioned on previous words. Alternatively, one might use a parametric neural model to maximize a variational lower bound on the data density, like the VAE. One might use a series of invertible transformations parametrized using neural networks to transform simple random variables to points from the data distribution (or compute the density of those points). These are the normalizing flows, which build upon the random variable transformation formula.  
 
 GANs are different in the sense that they do not build any form of explicit or approximate density for the dataset. Instead, the focus is shifted into transforming a random noise to a point from the data distribution by applying a mapping parametrized by a neural network. The CDF of the induced distribution is given by integrating over the set of events ${ \lbrace G_{\theta}(z) \le x \rbrace}$. The density is obtained by differentiating this integral which is hardly tractable.
 
@@ -29,16 +29,16 @@ The principle is to learn only from two sets of data, real and generated, using 
 
 # Learning with Ratio Estimation
 
-It turns out that if we have a perfect binary classifier $D(x)$ such that $D(x) = 1 \iff x \sim q$ and $D(x) = 0 \iff x \sim p_\theta$. Using this classifier, we can reformulate the ratio of two distributions as $r = \frac{P(x | D(x) = 1)}{P(x | D(x) = 0)}$. Applying Bayes' rule to both parts yields
+It turns out that if we have a perfect binary classifier $D(x)$ such that $D(x) = 1 \iff x \sim q$ and $D(x) = 0 \iff x \sim p_\theta$. Using this classifier, we can reformulate the ratio of two distributions as $r = \frac{P(x \mid D(x) = 1)}{P(x \mid D(x) = 0)}$. Applying Bayes' rule to both parts yields
 
 $$
-r = \left( \frac{P(D(x) = 1 | x) \cdot P(x)}{P(D(x) = 1)} \right) \left( \frac{P(D(x) = 0)}{P(D(x) = 0 | x) \cdot P(x)} \right)
+r = \left( \frac{P(D(x) = 1 \mid x) \cdot P(x)}{P(D(x) = 1)} \right) \left( \frac{P(D(x) = 0)}{P(D(x) = 0 \mid x) \cdot P(x)} \right)
 $$
 
 Assuming that priors are equal $P(D(x) = 0) = P(D(x) = 1) = \pi$ and cancelling terms leaves us with
 
 $$
-r = \frac{P(D(x) = 1 | x)}{P(D(x) = 0 | x)} = \frac{P(D(x) = 1 | x)}{1 - P(D(x) = 1 | x)} = \frac{D(x)}{1 - D(x)}
+r = \frac{P(D(x) = 1 \mid x)}{P(D(x) = 0 \mid x)} = \frac{P(D(x) = 1 \mid x)}{1 - P(D(x) = 1 \mid x)} = \frac{D(x)}{1 - D(x)}
 $$
 
 So, now it remains for us to achieve this discriminator $D(x)$ by training it to differentiate between real and generated data using binary cross entropy. We parametrize it as a neural network $D_\phi$ and train it alongside the generator. The objectives of generator and discriminator networks are as follows:
