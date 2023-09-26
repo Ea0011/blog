@@ -12,12 +12,15 @@ I became aware of the astonishing results that GANs achieved during a conference
 
 Let's start with the goal of Generative AI. The goal of generative AI is to achieve knowledge about the distribution of a given dataset $D = \left( x_1, x_2, \dots, x_n \right)$. This data can be images, tabular data, audio, graphs, you name it. One way of doing this is adopting some assumptions and using parametric models to model the density $p_x$. For instance, autoregressive models decompose the joint distribution of the data point into a product of marginal distributions $p \left( x \right) = \prod_{i} p(x_i | x_{< i})$. One example of such kind of model is the Transformer used to generate the next word in a sequence conditioned on previous words. Alternatively, one might use a parametric neural model to maximize a variational lower bound on the data density, like the VAE. One might use a series of invertible transformations parametrized using neural networks to transform simple random variables to points from the data distribution (or compute the density of those points). These are the normalizing flows, which build upon the random variable transformation formula.  
 
-GANs are different in the sense that they do not build any form of explicit or approximate density for the dataset. Instead, the focus is shifted into transforming a random noise to a point from the data distribution by applying a mapping parametrized by a neural network. The CDF of the induced distribution is given by integrating over the set of events ${ \{G_{\theta}(z) \le x \}}$. The density is obtained by differentiating this integral which is hardly tractable.
+GANs are different in the sense that they do not build any form of explicit or approximate density for the dataset. Instead, the focus is shifted into transforming a random noise to a point from the data distribution by applying a mapping parametrized by a neural network. The CDF of the induced distribution is given by integrating over the set of events ${ \lbrace G_{\theta}(z) \le x \rbrace}$. The density is obtained by differentiating this integral which is hardly tractable.
 
 $$
-z \sim q_z \\
-\hat{x} = G_{\theta}(z) \\
-P_{\theta}(X \le x) = \int_{ \{G_{\theta}(z) \le x \}} q(z) \,dz 
+\begin{aligned}
+z &\sim p_z \\
+\hat{x} &= G_{\theta}(z) \\
+P_{\theta}(X \le x) &= \int_{ \lbrace G_{\theta}(z) \le x 
+\rbrace} p(z)dz 
+\end{aligned}
 $$
 
 Hence, we say that GANs only model the density implicitly, rather than explicitly. With GANs we are not able to compute the density at a given point. However, GANs do support fast sampling from the data distribution. Then, the question becomes how to learn the transformation $G_\theta$.
@@ -41,13 +44,13 @@ $$
 So, now it remains for us to achieve this discriminator $D(x)$ by training it to differentiate between real and generated data using binary cross entropy. We parametrize it as a neural network $D_\phi$ and train it alongside the generator. The objectives of generator and discriminator networks are as follows:
 
 $$
-\max_{\phi} \mathcal{V_{\text{D}}}(G_\theta, D_\phi) = \mathbb{E}_{x \sim q(x)}[\log D_\phi(x)] + \mathbb{E}_{z \sim p_z(z)}[\log(1 - D_\phi(G(z)))]
+\max_{\phi} \mathcal{V_ {\text{D}}}(G_ \theta, D_ \phi) = \mathbb{E}_ {x \sim q(x)}\log D_\phi(x) + \mathbb{E}_{z \sim p _z(z)}\log(1 - D _\phi(G(z)))
 $$
 
 The objective of the generator is to generate samples that are so good that they fool this discriminator. The initially proposed objective is minimizing the probability of generated data being fake
 
 $$
-\min_{\theta} \mathcal{L_{\text{G}}}(G_\theta, D_\phi) = \mathbb{E}_{z \sim p_z(z)}[\log(1 - D_\phi(G_\theta(z)))]
+\min_{\theta} \mathcal{L_{\text{G}}}(G_\theta, D_\phi) = \mathbb{E}_{z \sim p _z(z)}\log(1 - D _\phi(G _\theta(z)))
 $$
 
 It can be shown that if the discriminator is optimal, minimizing the objective for the generator above leads to the minimization of the Jensen-Shannon Divergence between the generative distribution and the real distribution. This is really nice because now we have associated learning from samples with a distance metric comparing two distributions.
@@ -69,7 +72,7 @@ Aside from NSGAN, a plethora of other variants like least squares GAN (LSGAN), W
 
 Mode collapse in GANs collectively refers to a lack of variety in the generated samples. The samples themselves might look very good, but they may all be too similar to each other. For instance, when trained on hand-written digits with ten modes, the generator might fail to produce some of the digits. This might happen when GAN fails to learn all modes of the distribution or when the generator maps several noise vectors to the same activations. In principle, the task of the generator is to produce samples that look maximally real to the discriminator. Hence, a natural solution for the generator would be to produce a single most probable sample, ignoring the input noise entirely. If the discriminator doesn't learn to penalize this behavior, the generator will keep generating similar samples from that single mode. A closely related issue is mode hopping, which is when the generator alternates between producing samples from several modes. For example, it might first start generating the digit 1, then sometime later it might start generating only the digit 7 and so on. This happens when the discriminator learns to punish it for generating samples from a single mode. But the generator just starts generating from other modes. And this behavior continues.  
 
-To identify this, it is worth monitoring the outputs during the training. If mode collapse starts happening, there are some methods you can try. Using minibatch statistics such as minibatch standard deviation as input in the discriminator might encourage the generator to produce samples with realistic statistics and more variety, thereby defeating mode collapse. Increasing the batch size and the discriminator capacity may help as well. One very good option is to use packing, which doesn't require many changes to the architecture (see [PacGAN](http://swoh.web.engr.illinois.edu/pacgan.html)). Essentially, one modifies the discriminator to assign a single label for a pair of inputs instead of a single input. It has been shown in the paper PacGAN that doing this causes a large penalty for the generator if it starts ignoring modes. In other words, if the generator produces samples from the set $\{x \mid q(x) > 0 \text{ but } p_\theta(x) \approx 0 \}$ it gets penalized. Formally, the discriminator starts differentiating between samples from the product distributions $(p^{2}, q^{2})$. Additionally, this technique might also improve the quality of the generated data. It is worth trying.
+To identify this, it is worth monitoring the outputs during the training. If mode collapse starts happening, there are some methods you can try. Using minibatch statistics such as minibatch standard deviation as input in the discriminator might encourage the generator to produce samples with realistic statistics and more variety, thereby defeating mode collapse. Increasing the batch size and the discriminator capacity may help as well. One very good option is to use packing, which doesn't require many changes to the architecture (see [PacGAN](http://swoh.web.engr.illinois.edu/pacgan.html)). Essentially, one modifies the discriminator to assign a single label for a pair of inputs instead of a single input. It has been shown in the paper PacGAN that doing this causes a large penalty for the generator if it starts ignoring modes. In other words, if the generator produces samples from the set $\lbrace x \mid q(x) > 0 \text{ but } p_\theta(x) \approx 0 \rbrace$ it gets penalized. Formally, the discriminator starts differentiating between samples from the product distributions $(p^{2}, q^{2})$. Additionally, this technique might also improve the quality of the generated data. It is worth trying.
 
 ## No Easy Evaluation
 
